@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Money Master – Word Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f172a;
+  --card:#111827;
+  --cell:#1e293b;
+  --accent:#38bdf8;
+  --text:#e5e7eb;
+  --found:#14532d;
+  --select:#2563eb;
+  --prefill:#334155;
+}
+
+body{
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:linear-gradient(160deg,#020617,#0f172a);
+  color:var(--text);
+  padding:30px;
+}
+
+h1{text-align:center;margin-bottom:5px}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:30px}
+
+.wrapper{
+  max-width:1000px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:30px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(10,42px);
+  grid-template-rows:repeat(10,42px);
+  gap:6px;
+  justify-content:center;
+}
+
+.cell{
+  width:42px;
+  height:42px;
+  border-radius:8px;
+  background:var(--cell);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  user-select:none;
+}
+
+.cell.prefilled{
+  background:var(--prefill);
+  color:var(--accent);
+}
+
+.cell.selecting{
+  background:var(--select);
+}
+
+.cell.found{
+  background:var(--found);
+}
+
+/* WORD LIST */
+.words h3{color:var(--accent);margin-top:0}
+.words li{
+  list-style:none;
+  margin-bottom:8px;
+  font-weight:600;
+}
+.words li.found{
+  text-decoration:line-through;
+  color:#86efac;
+}
+
+@media(max-width:900px){
+  .wrapper{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<h1>💰 Money Master – Word Search</h1>
+<p class="subtitle">Find financial literacy terms hidden in the grid</p>
+
+<div class="wrapper">
+
+<div class="card">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="card words">
+  <h3>Find These Words</h3>
+  <ul id="wordList"></ul>
+</div>
+
+</div>
+
+<script>
+/* 10x10 Grid — ALL letters meaningful */
+const gridLetters=[
+"I N C O M E T V M",
+"B U D G E T A X P",
+"S A V I N G S L A",
+"E X P E N S E N N",
+"N E E D S W A N T",
+"W A N T S I N F L",
+"I N F L A T I O N",
+"C O M P O U N D R",
+"I N T E R E S T S",
+"M O N E Y V A L U"
+];
+
+const words=[
+"INCOME","BUDGET","SAVINGS","EXPENSE",
+"NEEDS","WANTS","INFLATION","TVM",
+"INTEREST","COMPOUND"
+];
+
+const grid=document.getElementById("grid");
+const wordList=document.getElementById("wordList");
+
+let selecting=false;
+let selected=[];
+
+// Build word list
+words.forEach(w=>{
+  const li=document.createElement("li");
+  li.textContent=w;
+  li.id="word-"+w;
+  wordList.appendChild(li);
+});
+
+// Build grid
+gridLetters.forEach((row,r)=>{
+  row.split(" ").forEach((ch,c)=>{
+    const cell=document.createElement("div");
+    cell.className="cell";
+    cell.textContent=ch;
+    cell.dataset.row=r;
+    cell.dataset.col=c;
+    grid.appendChild(cell);
+
+    cell.addEventListener("mousedown",()=>{
+      selecting=true;
+      clearSelection();
+      selectCell(cell);
+    });
+
+    cell.addEventListener("mouseenter",()=>{
+      if(selecting) selectCell(cell);
+    });
+
+    cell.addEventListener("mouseup",finishSelection);
+  });
+});
+
+document.addEventListener("mouseup",()=>selecting=false);
+
+function selectCell(cell){
+  if(!selected.includes(cell)){
+    selected.push(cell);
+    cell.classList.add("selecting");
+  }
+}
+
+function clearSelection(){
+  selected.forEach(c=>c.classList.remove("selecting"));
+  selected=[];
+}
+
+function finishSelection(){
+  const word=selected.map(c=>c.textContent).join("");
+  const reverse=word.split("").reverse().join("");
+
+  if(words.includes(word) || words.includes(reverse)){
+    selected.forEach(c=>{
+      c.classList.remove("selecting");
+      c.classList.add("found");
+    });
+    const foundWord=words.includes(word)?word:reverse;
+    document.getElementById("word-"+foundWord).classList.add("found");
+  }else{
+    clearSelection();
+  }
+}
+</script>
+
+</body>
+</html>
