@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Money Master – Word Search</title>
@@ -15,7 +16,6 @@
       --found: #14532d;
       --select: #2563eb;
     }
-/* main code but with safari issue */
 
     body {
       margin: 0;
@@ -27,13 +27,13 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 5px
+      margin-bottom: 5px;
     }
 
     .subtitle {
       text-align: center;
       color: #94a3b8;
-      margin-bottom: 30px
+      margin-bottom: 30px;
     }
 
     .wrapper {
@@ -70,36 +70,41 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
+
+      /* 🔒 Safari FIX */
+      -webkit-user-select: none;
       user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: none;
     }
 
     .cell.selecting {
-      background: var(--select)
+      background: var(--select);
     }
 
     .cell.found {
-      background: var(--found)
+      background: var(--found);
     }
 
     .words h3 {
       color: var(--accent);
-      margin-top: 0
+      margin-top: 0;
     }
 
     .words li {
       list-style: none;
       margin-bottom: 6px;
-      font-weight: 600
+      font-weight: 600;
     }
 
     .words li.found {
       text-decoration: line-through;
-      color: #86efac
+      color: #86efac;
     }
 
-    @media(max-width:900px) {
+    @media (max-width:900px) {
       .wrapper {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -125,30 +130,30 @@
 
   <!-- WIN POPUP -->
   <div id="winPopup" style="
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;">
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.75);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;">
     <div style="
-    background:#111827;
-    padding:30px 40px;
-    border-radius:16px;
-    text-align:center;
-    max-width:320px;">
+      background:#111827;
+      padding:30px 40px;
+      border-radius:16px;
+      text-align:center;
+      max-width:320px;">
       <h2 style="color:#38bdf8;margin-top:0">🎉 Congratulations!</h2>
       <p>You found all the words.</p>
       <button onclick="location.reload()" style="
-      margin-top:15px;
-      padding:10px 18px;
-      border:none;
-      border-radius:8px;
-      background:#38bdf8;
-      color:#020617;
-      font-weight:700;
-      cursor:pointer;">
+        margin-top:15px;
+        padding:10px 18px;
+        border:none;
+        border-radius:8px;
+        background:#38bdf8;
+        color:#020617;
+        font-weight:700;
+        cursor:pointer;">
         Play Again
       </button>
     </div>
@@ -185,7 +190,6 @@
     let selected = [];
     let foundCount = 0;
 
-    /* Word list */
     words.forEach(w => {
       const li = document.createElement("li");
       li.textContent = w;
@@ -193,7 +197,6 @@
       wordList.appendChild(li);
     });
 
-    /* Build grid */
     gridLetters.forEach(row => {
       row.split(" ").forEach(ch => {
         const cell = document.createElement("div");
@@ -201,41 +204,26 @@
         cell.textContent = ch;
         grid.appendChild(cell);
 
-        /* Desktop */
-        cell.addEventListener("mousedown", () => startSelection(cell));
-        cell.addEventListener("mouseenter", () => moveSelection(cell));
-        cell.addEventListener("mouseup", endSelection);
-
-        /* Mobile */
-        cell.addEventListener("touchstart", e => {
+        /* ✅ Pointer Events (Safari-friendly) */
+        cell.addEventListener("pointerdown", e => {
           e.preventDefault();
           startSelection(cell);
         });
 
-        cell.addEventListener("touchmove", e => {
-          e.preventDefault();
-          const t = e.touches[0];
-          const target = document.elementFromPoint(t.clientX, t.clientY);
-          if (target && target.classList.contains("cell")) {
-            moveSelection(target);
-          }
+        cell.addEventListener("pointerenter", () => {
+          if (selecting) selectCell(cell);
         });
 
-        cell.addEventListener("touchend", endSelection);
+        cell.addEventListener("pointerup", endSelection);
       });
     });
 
-    document.addEventListener("mouseup", () => selecting = false);
-    document.addEventListener("touchend", () => selecting = false);
+    document.addEventListener("pointerup", () => selecting = false);
 
     function startSelection(cell) {
       selecting = true;
       clearSelection();
       selectCell(cell);
-    }
-
-    function moveSelection(cell) {
-      if (selecting) selectCell(cell);
     }
 
     function endSelection() {
@@ -284,5 +272,4 @@
   </script>
 
 </body>
-
 </html>
