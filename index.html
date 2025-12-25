@@ -1,279 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Money Master – Word Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Money Master – Word Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-:root {
-  --card: #111827;
-  --cell: #1e293b;
-  --accent: #38bdf8;
-  --text: #e5e7eb;
-  --found: #14532d;
-  --select: #2563eb;
-}
+  <style>
+    :root {
+      --card: #111827;
+      --cell: #1e293b;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+      --found: #14532d;
+      --select: #2563eb;
+    }
 
-* {
-  box-sizing: border-box;
-}
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: linear-gradient(160deg, #020617, #0f172a);
+      color: var(--text);
+      padding: 30px;
+    }
 
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: linear-gradient(160deg, #020617, #0f172a);
-  color: var(--text);
-  padding: 16px;
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 5px
+    }
 
-h1 {
-  text-align: center;
-  margin-bottom: 5px;
-}
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 30px
+    }
 
-.subtitle {
-  text-align: center;
-  color: #94a3b8;
-  margin-bottom: 20px;
-}
+    .wrapper {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 30px;
+    }
 
-.wrapper {
-  max-width: 1100px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 20px;
-}
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .4);
+    }
 
-.card {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.4);
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(14, 40px);
+      grid-template-rows: repeat(14, 40px);
+      gap: 5px;
+      justify-content: center;
+    }
 
-/* 🔥 RESPONSIVE GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  aspect-ratio: 1 / 1;
-  gap: 6px;
-  max-width: 420px;
-  margin: auto;
-}
+    .cell {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      background: var(--cell);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+    }
 
-/* 🔥 RESPONSIVE CELLS */
-.cell {
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
-  background: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(14px, 2.5vw, 18px);
-  font-weight: 700;
-  cursor: pointer;
+    .cell.selecting {
+      background: var(--select)
+    }
 
-  /* SAFARI FIXES */
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none;
-}
+    .cell.found {
+      background: var(--found)
+    }
 
-.cell.selecting {
-  background: var(--select);
-}
+    .words h3 {
+      color: var(--accent);
+      margin-top: 0
+    }
 
-.cell.found {
-  background: var(--found);
-}
+    .words li {
+      list-style: none;
+      margin-bottom: 6px;
+      font-weight: 600
+    }
 
-.words h3 {
-  color: var(--accent);
-  margin-top: 0;
-}
+    .words li.found {
+      text-decoration: line-through;
+      color: #86efac
+    }
 
-.words li {
-  list-style: none;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.words li.found {
-  text-decoration: line-through;
-  color: #86efac;
-}
-
-/* MOBILE LAYOUT */
-@media (max-width: 900px) {
-  .wrapper {
-    grid-template-columns: 1fr;
-  }
-
-  .grid {
-    max-width: 100%;
-  }
-}
-</style>
+    @media(max-width:900px) {
+      .wrapper {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>💰 Money Master – Word Search</h1>
-<p class="subtitle">Drag across letters to find financial terms</p>
+  <h1>💰 Money Master – Word Search</h1>
+  <p class="subtitle">Find financial literacy terms hidden in the grid</p>
 
-<div class="wrapper">
+  <div class="wrapper">
 
-  <div class="card">
-    <div class="grid" id="grid"></div>
+    <div class="card">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="card words">
+      <h3>Find These Words</h3>
+      <ul id="wordList"></ul>
+    </div>
+
   </div>
 
-  <div class="card words">
-    <h3>Find These Words</h3>
-    <ul id="wordList"></ul>
+  <!-- WIN POPUP -->
+  <div id="winPopup" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;">
+    <div style="
+    background:#111827;
+    padding:30px 40px;
+    border-radius:16px;
+    text-align:center;
+    max-width:320px;">
+      <h2 style="color:#38bdf8;margin-top:0">🎉 Congratulations!</h2>
+      <p>You found all the words.</p>
+      <button onclick="location.reload()" style="
+      margin-top:15px;
+      padding:10px 18px;
+      border:none;
+      border-radius:8px;
+      background:#38bdf8;
+      color:#020617;
+      font-weight:700;
+      cursor:pointer;">
+        Play Again
+      </button>
+    </div>
   </div>
 
-</div>
+  <script>
+    const gridLetters = [
+      "B W N T N S D O A G B Z N L",
+      "Z N S X E Z K B U D G E T H",
+      "W A N T S N K R F A F A S D",
+      "I E B U D A Z B P B I S Z M",
+      "N C M Q I U N B M A N A M O",
+      "F O J H N X Y T D D A V D N",
+      "L M J M C B Z V F I N I C E",
+      "A P H N O X F F L N C N A Y",
+      "T O R E M A D H T T E G Q M",
+      "I U N E E F G R A E G S E S",
+      "O N Z D J G D W V R Z D T J",
+      "N D G S V L U B Z E D L V G",
+      "T V M O C F Z Z I S H Q M Y",
+      "I S E X P E N S E T U W Z E"
+    ];
 
-<!-- WIN POPUP -->
-<div id="winPopup" style="
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.75);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:9999;">
-<div style="
-background:#111827;
-padding:30px;
-border-radius:16px;
-text-align:center;
-max-width:320px;">
-<h2 style="color:#38bdf8;margin-top:0">🎉 Well Done!</h2>
-<p>You found all the words.</p>
-<button onclick="location.reload()" style="
-margin-top:15px;
-padding:10px 18px;
-border:none;
-border-radius:8px;
-background:#38bdf8;
-color:#020617;
-font-weight:700;
-cursor:pointer;">
-Play Again
-</button>
-</div>
-</div>
+    const words = [
+      "INCOME", "BUDGET", "SAVINGS", "EXPENSE",
+      "NEEDS", "WANTS", "INFLATION", "TVM",
+      "INTEREST", "COMPOUND", "MONEY", "FINANCE"
+    ];
 
-<script>
-const gridLetters = [
-"B W N T N S D O A G B Z N L",
-"Z N S X E Z K B U D G E T H",
-"W A N T S N K R F A F A S D",
-"I E B U D A Z B P B I S Z M",
-"N C M Q I U N B M A N A M O",
-"F O J H N X Y T D D A V D N",
-"L M J M C B Z V F I N I C E",
-"A P H N O X F F L N C N A Y",
-"T O R E M A D H T T E G Q M",
-"I U N E E F G R A E G S E S",
-"O N Z D J G D W V R Z D T J",
-"N D G S V L U B Z E D L V G",
-"T V M O C F Z Z I S H Q M Y",
-"I S E X P E N S E T U W Z E"
-];
+    const grid = document.getElementById("grid");
+    const wordList = document.getElementById("wordList");
 
-const words = [
-"INCOME","BUDGET","SAVINGS","EXPENSE",
-"NEEDS","WANTS","INFLATION","TVM",
-"INTEREST","COMPOUND","MONEY","FINANCE"
-];
+    let selecting = false;
+    let selected = [];
+    let foundCount = 0;
 
-const grid = document.getElementById("grid");
-const wordList = document.getElementById("wordList");
+    /* Word list */
+    words.forEach(w => {
+      const li = document.createElement("li");
+      li.textContent = w;
+      li.id = "word-" + w;
+      wordList.appendChild(li);
+    });
 
-let selecting = false;
-let selected = [];
-let foundCount = 0;
+    /* Build grid */
+    gridLetters.forEach(row => {
+      row.split(" ").forEach(ch => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = ch;
+        grid.appendChild(cell);
 
-/* word list */
-words.forEach(w => {
-  const li = document.createElement("li");
-  li.textContent = w;
-  li.id = "word-" + w;
-  wordList.appendChild(li);
-});
+        /* Desktop */
+        cell.addEventListener("mousedown", () => startSelection(cell));
+        cell.addEventListener("mouseenter", () => moveSelection(cell));
+        cell.addEventListener("mouseup", endSelection);
 
-/* build grid */
-gridLetters.forEach(row => {
-  row.split(" ").forEach(ch => {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    cell.textContent = ch;
-    grid.appendChild(cell);
+        /* Mobile */
+        cell.addEventListener("touchstart", e => {
+          e.preventDefault();
+          startSelection(cell);
+        });
 
-    cell.addEventListener("pointerdown", e => {
-      e.preventDefault();
+        cell.addEventListener("touchmove", e => {
+          e.preventDefault();
+          const t = e.touches[0];
+          const target = document.elementFromPoint(t.clientX, t.clientY);
+          if (target && target.classList.contains("cell")) {
+            moveSelection(target);
+          }
+        });
+
+        cell.addEventListener("touchend", endSelection);
+      });
+    });
+
+    document.addEventListener("mouseup", () => selecting = false);
+    document.addEventListener("touchend", () => selecting = false);
+
+    function startSelection(cell) {
       selecting = true;
-      cell.setPointerCapture(e.pointerId); // 🔥 KEY FIX
       clearSelection();
       selectCell(cell);
-    });
+    }
 
-    cell.addEventListener("pointerenter", () => {
+    function moveSelection(cell) {
       if (selecting) selectCell(cell);
-    });
+    }
 
-    cell.addEventListener("pointerup", endSelection);
-  });
-});
+    function endSelection() {
+      selecting = false;
+      finishSelection();
+    }
 
-document.addEventListener("pointerup", () => selecting = false);
-
-function selectCell(cell) {
-  if (!selected.includes(cell)) {
-    selected.push(cell);
-    cell.classList.add("selecting");
-  }
-}
-
-function clearSelection() {
-  selected.forEach(c => c.classList.remove("selecting"));
-  selected = [];
-}
-
-function endSelection() {
-  selecting = false;
-  const word = selected.map(c => c.textContent).join("");
-  const reverse = [...word].reverse().join("");
-
-  let match = null;
-  if (words.includes(word)) match = word;
-  if (words.includes(reverse)) match = reverse;
-
-  if (match) {
-    selected.forEach(c => {
-      c.classList.remove("selecting");
-      c.classList.add("found");
-    });
-
-    const li = document.getElementById("word-" + match);
-    if (!li.classList.contains("found")) {
-      li.classList.add("found");
-      foundCount++;
-      if (foundCount === words.length) {
-        document.getElementById("winPopup").style.display = "flex";
+    function selectCell(cell) {
+      if (!selected.includes(cell)) {
+        selected.push(cell);
+        cell.classList.add("selecting");
       }
     }
-  } else {
-    clearSelection();
-  }
-}
-</script>
+
+    function clearSelection() {
+      selected.forEach(c => c.classList.remove("selecting"));
+      selected = [];
+    }
+
+    function finishSelection() {
+      const word = selected.map(c => c.textContent).join("");
+      const reverse = [...word].reverse().join("");
+
+      let match = null;
+      if (words.includes(word)) match = word;
+      if (words.includes(reverse)) match = reverse;
+
+      if (match) {
+        selected.forEach(c => {
+          c.classList.remove("selecting");
+          c.classList.add("found");
+        });
+
+        const li = document.getElementById("word-" + match);
+        if (!li.classList.contains("found")) {
+          li.classList.add("found");
+          foundCount++;
+          if (foundCount === words.length) {
+            document.getElementById("winPopup").style.display = "flex";
+          }
+        }
+      } else {
+        clearSelection();
+      }
+    }
+  </script>
 
 </body>
+
 </html>
